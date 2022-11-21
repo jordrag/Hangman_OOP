@@ -31,18 +31,6 @@ class AbcPrint(with_metaclass(ABCMeta)):
         pass
 
     @abstractmethod
-    def analysing_letter(self):
-        pass
-
-    @abstractmethod
-    def changing_state(self):
-        pass
-
-    @abstractmethod
-    def change_logic(self):
-        pass
-
-    @abstractmethod
     def printing_in_game(self):
         pass
 

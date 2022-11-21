@@ -89,10 +89,10 @@ class DatabaseInput(object):
 
         temp_list = []
         exclude_list = Database.ex_word_read()
-        min_length = Database.levels[self.difficulty][0]
-        max_length = Database.levels[self.difficulty][1]
+        min_length = Database.levels[difficulty][0]
+        max_length = Database.levels[difficulty][1]
 
-        for word in Database.categories[self.category]:
+        for word in Database.categories[category]:
             if min_length <= len(word) <= max_length and word not in exclude_list:
                 temp_list.append(word)
         return temp_list
