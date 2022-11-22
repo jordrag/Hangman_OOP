@@ -71,7 +71,9 @@ class ScreenPrint(AbcPrint):
     """ Printing on the screen in ASCII format only. """
 
     def __init__(self):
+        # self.display_list = display_list
         pass
+
 
     def welcoming(self):
         """ Presenting current HIL points saved to the user in database. """
@@ -87,22 +89,26 @@ class ScreenPrint(AbcPrint):
             print(i, end=" ")
         print()
 
+    @staticmethod
     def print_in_game(self):
         """ Regular prints the word asking progress. """
 
         print(" ".join(self.user_word))
 
+    @staticmethod
     def print_hangman(self):
         """ Prints the hanging progress. """
 
         print("It's wrong ! Hanging in progress...")
         print("*" * self.fail_count)
 
+    @staticmethod
     def present_asked_letters(self):
         """ Presents a list of asked letters. """
 
         print(self.asked_letters)
 
+    @staticmethod
     def print_win_result(self):
         """ Prints exit data when the player wins the game. """
 
@@ -110,6 +116,7 @@ class ScreenPrint(AbcPrint):
         print(f"Total game points left: {self.game_points}")
         print(f"Total HIL points: {self.hil_points}")
 
+    @staticmethod
     def print_lost_result(self):
         """ Prints exit data when the player looses the game. """
 
@@ -118,13 +125,16 @@ class ScreenPrint(AbcPrint):
         print(f"Total earned game points: {self.game_points}")
         print(f"Total HIL points: {self.hil_points}")
 
+    @staticmethod
     def print_no_hint(self):
         print("You haven't enough points for hint !")
 
+    @staticmethod
     def print_ask_whole_word(self):
         whole_word = input("Please, enter the whole word you think it is: ")
         return whole_word
 
+    @staticmethod
     def print_additional_try(self):
         if self.additional_try:
             print(f"Now you have one more try and {self.hil_points} "
@@ -132,10 +142,61 @@ class ScreenPrint(AbcPrint):
         else:
             print("You don't have enough HIL points !")
 
+    @staticmethod
     def leave_game(self):
         """ Final print. """
 
-        print ("OK, bye ! Leaving...")
+        print("OK, bye ! Leaving...")
         print(f"Your total saved HIL points: {self.hil_points}")
 
+visualisation = ScreenPrint()
+
+class PrinterLogic(object):
+    def __init__(self):
+        pass
+
+    def printer_cycle(self):
+
+        while True:
+
+            if self.display_list["print_in_game"]:
+                visualisation.print_in_game(self)
+                self.display_list["print_in_game"] = False
+
+            elif self.display_list["print_hangman"]:
+                visualisation.print_hangman(self)
+                self.display_list["print_hangman"] = False
+
+            elif self.display_list["print_asked_letters"]:
+                visualisation.present_asked_letters(self)
+                self.display_list["print_asked_letters"] = False
+
+            elif self.display_list["print_win_result"]:
+                visualisation.print_win_result(self)
+                self.display_list["print_win_result"] = False
+
+            elif self.display_list["print_lost_result"]:
+                visualisation.print_lost_result(self)
+                self.display_list["print_lost_result"] = False
+
+            elif self.display_list["print_no_hint"]:
+                visualisation.print_no_hint(self)
+                self.display_list["print_no_hint"] = False
+
+            elif self.display_list["print_ask_whole_word"]:
+                visualisation.print_ask_whole_word(self)
+                self.display_list["print_ask_whole_word"] = False
+
+            elif self.display_list["print_additional_try"]:
+                visualisation.print_additional_try(self)
+                self.display_list["print_additional_try"] = False
+
+            elif self.display_list["print_leave_game"]:
+                visualisation.leave_game(self)
+                self.display_list["print_leave_game"] = False
+
+            else:
+                break
+
+        return self
 # **************************************************************************************************

@@ -74,10 +74,15 @@ class HangmanApp(object):
         self.user_word = self.starting_data["user_word"]
         self.game_points = len(self.the_word)
         self.asked_letters = []
-        self.display_list = []
+        self.display_list = {"print_in_game": False, "print_hangman": False,
+                             "print_asked_letters": False, "print_win_result": False,
+                             "print_lost_result": False, "print_no_hint": False,
+                             "print_ask_whole_word": False, "print_additional_try": False,
+                             "print_leave_game": False}
         self.fail_count = 0
         self.end_trigger = False
         self.additional_try = False
+
 
 # ***************************** The game logic ***************************************************
 
@@ -92,20 +97,20 @@ class HangmanApp(object):
                 guessed_right += 1
 
         if guessed_right != 0:
-            self.display_list.append(self.visualisation.print_in_game(self))
+            self.display_list["print_in_game"] = True
             if self.letter_mark not in self.user_word:
                 self.end_trigger = True
                 self.hil_points += 1
-                self.display_list.append(self.visualisation.print_win_result(self))
+                self.display_list["print_win_result"] = True
         else:
             self.fail_count += 1
             self.game_points -= 1
             if self.game_points < 0:
                 self.game_points = 0
-            self.display_list.append(self.visualisation.print_hangman(self))
+            self.display_list["print_hangman"] = True
 
             if self.fail_count == len(self.the_word):
-                self.display_list.append(self.visualisation.print_lost_result(self))
+                self.display_list["print_lost_result"] = True
                 self.end_trigger = True
 
         return self
@@ -127,33 +132,32 @@ class HangmanApp(object):
             self.game_points -= 2
             ind = self.user_word.index(self.letter_mark)
             self.user_word[ind] = self.the_word[ind]
-            self.display_list.append(self.visualisation.print_in_game(self))
-            # self.visualisation.printing_in_game(self)
+            self.display_list["print_in_game"] = True
         else:
-            self.display_list.append(self.visualisation.print_no_hint(self))
+            self.display_list["print_no_hint"] = True
 
     def stop_game(self):
         """ Stopping game. """
 
         self.end_trigger = True
-        self.display_list.append(self.visualisation.leave_game(self))
+        self.display_list["print_leave_game"] = True
 
     def ask_whole_word(self):
         """ User tries to ask the whole word. """
 
-        whole_word = self.visualisation.print_ask_whole_word(self)
+        whole_word = self.display_list["ask_whole_word"] = True
         if whole_word == self.the_word or whole_word == self.the_word.lower():
             self.end_trigger = True
             self.hil_points += 1
-            self.display_list.append(self.visualisation.print_win_result(self))
+            self.display_list["print_win_result"] = True
 
         else:
             self.fail_count += 1
-            self.display_list.append(self.visualisation.print_hangman(self))
+            self.display_list["print_hangman"] = True
 
     def print_asked_letters(self):
         """ Represents all asked letters in this game to that moment. """
-        self.display_list.append(self.visualisation.present_asked_letters(self))
+        self.display_list["print_asked_letters"] = True
 
     def ask_additional_try(self):
         """ A possibility for one additional try after exchanging 10 HIL points. """
@@ -165,7 +169,7 @@ class HangmanApp(object):
         else:
             self.additional_try = False
 
-        self.display_list.append(self.visualisation.print_additional_try(self))
+        self.display_list["print_additional_try"] = True
 
     def manage_comms(self, command):
         """ Method for handling commands:
@@ -209,10 +213,12 @@ class HangmanApp(object):
             else:
                 self.check_letters(letter, guessed_right)
                 if self.end_trigger:
+                    PrinterLogic.printer_cycle(self)
                     break
 
-            for print_action in self.display_list:
-                print_action
+            PrinterLogic.printer_cycle(self)
+
+# ********************** State change ****************************************
 
         change_var = UserInput.changing_state()
         if change_var[0]:
