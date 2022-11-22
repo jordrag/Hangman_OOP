@@ -129,7 +129,8 @@ class ScreenPrint(AbcPrint):
         if self.additional_try:
             print(f"Now you have one more try and {self.hil_points} "
                   f"HIL points remaining !")
-        print("You don't have enough HIL points !")
+        else:
+            print("You don't have enough HIL points !")
 
     def leave_game(self):
         """ Final print. """

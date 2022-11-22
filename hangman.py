@@ -62,6 +62,7 @@ class HangmanApp(object):
     def __init__(self, name, diff, cat):
         self.letter_mark = "_"
         self.commands_symbol = "@"
+        self.visualisation = ScreenPrint
         self.usernames = self.data_input.username_list
         self.username = name
         self.difficulty = diff
@@ -73,11 +74,10 @@ class HangmanApp(object):
         self.user_word = self.starting_data["user_word"]
         self.game_points = len(self.the_word)
         self.asked_letters = []
-        self.triggers_list = []
+        self.display_list = []
         self.fail_count = 0
         self.end_trigger = False
         self.additional_try = False
-        self.visualisation = ScreenPrint
 
 # ***************************** The game logic ***************************************************
 
@@ -92,20 +92,20 @@ class HangmanApp(object):
                 guessed_right += 1
 
         if guessed_right != 0:
-            self.triggers_list.append(self.visualisation.print_in_game(self))
+            self.display_list.append(self.visualisation.print_in_game(self))
             if self.letter_mark not in self.user_word:
                 self.end_trigger = True
                 self.hil_points += 1
-                self.triggers_list.append(self.visualisation.print_win_result(self))
+                self.display_list.append(self.visualisation.print_win_result(self))
         else:
             self.fail_count += 1
             self.game_points -= 1
             if self.game_points < 0:
                 self.game_points = 0
-            self.triggers_list.append(self.visualisation.print_hangman(self))
+            self.display_list.append(self.visualisation.print_hangman(self))
 
             if self.fail_count == len(self.the_word):
-                self.triggers_list.append(self.visualisation.print_lost_result(self))
+                self.display_list.append(self.visualisation.print_lost_result(self))
                 self.end_trigger = True
 
         return self
@@ -127,16 +127,16 @@ class HangmanApp(object):
             self.game_points -= 2
             ind = self.user_word.index(self.letter_mark)
             self.user_word[ind] = self.the_word[ind]
-            self.triggers_list.append(self.visualisation.print_in_game(self))
+            self.display_list.append(self.visualisation.print_in_game(self))
             # self.visualisation.printing_in_game(self)
         else:
-            self.triggers_list.append(self.visualisation.print_no_hint(self))
+            self.display_list.append(self.visualisation.print_no_hint(self))
 
     def stop_game(self):
         """ Stopping game. """
 
         self.end_trigger = True
-        self.triggers_list.append(self.visualisation.leave_game(self))
+        self.display_list.append(self.visualisation.leave_game(self))
 
     def ask_whole_word(self):
         """ User tries to ask the whole word. """
@@ -145,15 +145,15 @@ class HangmanApp(object):
         if whole_word == self.the_word or whole_word == self.the_word.lower():
             self.end_trigger = True
             self.hil_points += 1
-            self.triggers_list.append(self.visualisation.print_win_result(self))
+            self.display_list.append(self.visualisation.print_win_result(self))
 
         else:
             self.fail_count += 1
-            self.triggers_list.append(self.visualisation.print_hangman(self))
+            self.display_list.append(self.visualisation.print_hangman(self))
 
     def print_asked_letters(self):
         """ Represents all asked letters in this game to that moment. """
-        self.triggers_list.append(self.visualisation.present_asked_letters(self))
+        self.display_list.append(self.visualisation.present_asked_letters(self))
 
     def ask_additional_try(self):
         """ A possibility for one additional try after exchanging 10 HIL points. """
@@ -162,11 +162,10 @@ class HangmanApp(object):
             self.fail_count -= 1
             self.hil_points -= 10
             self.additional_try = True
-            self.triggers_list.append(self.visualisation.print_additional_try(self))
-
         else:
             self.additional_try = False
-            self.triggers_list.append(self.visualisation.print_additional_try(self))
+
+        self.display_list.append(self.visualisation.print_additional_try(self))
 
     def manage_comms(self, command):
         """ Method for handling commands:
@@ -212,7 +211,7 @@ class HangmanApp(object):
                 if self.end_trigger:
                     break
 
-            for print_action in self.triggers_list:
+            for print_action in self.display_list:
                 print_action
 
         change_var = UserInput.changing_state()
