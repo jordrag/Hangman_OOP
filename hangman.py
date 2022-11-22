@@ -2,10 +2,9 @@ from abc import ABCMeta, abstractmethod
 from six import with_metaclass
 from hangman_package.hangman_display import *
 from hangman_package.hangman_input import *
-from hangman_package.hangman_logic import *
 
 
-def run():
+def run_hangman():
     """ For starting the game """
 
     input_data = UserInput.entering_game()
@@ -13,140 +12,163 @@ def run():
     level = input_data[1]
     category = input_data[2]
     player = HangmanApp(username, level, category)
-    player.gaming()
+    player.game_cycle()
+
+
+class AbcHangman(with_metaclass(ABCMeta)):
+    @abstractmethod
+    def check_letters(self):
+        pass
+
+    @abstractmethod
+    def save_data(self):
+        pass
+
+    @abstractmethod
+    def give_hint(self):
+        pass
+
+    @abstractmethod
+    def stop_game(self):
+        pass
+
+    @abstractmethod
+    def ask_whole_word(self):
+        pass
+
+    @abstractmethod
+    def print_asked_letters(self):
+        pass
+
+    @abstractmethod
+    def ask_additional_try(self):
+        pass
+
+    @abstractmethod
+    def manage_comms(self):
+        pass
+
+    @abstractmethod
+    def game_cycle(self):
+        pass
+
 
 class HangmanApp(object):
     """ The game manager. """
 
+    user_input = UserInput()
+    data_input = DatabaseInput()
+
     def __init__(self, name, diff, cat):
-        self.usernames = DatabaseInput.username_list
+        self.letter_mark = "_"
+        self.commands_symbol = "@"
+        self.usernames = self.data_input.username_list
         self.username = name
         self.difficulty = diff
         self.category = cat
-        self.game_list = DatabaseInput.defining_game_list(diff, cat)
-        self.hil_points = DatabaseInput.extracting_hil_points(name)
-        self.starting_data = DatabaseInput.setting_start_data(self.game_list)
+        self.game_list = self.data_input.defining_game_list(diff, cat)
+        self.hil_points = self.data_input.extracting_hil_points(name)
+        self.starting_data = self.data_input.setting_start_data(self.game_list)
         self.the_word = self.starting_data["the_word"]
-        self.trigger = False
+        self.user_word = self.starting_data["user_word"]
         self.game_points = len(self.the_word)
+        self.asked_letters = []
+        self.triggers_list = []
+        self.fail_count = 0
+        self.end_trigger = False
+        self.additional_try = False
         self.visualisation = ScreenPrint
 
-    def gaming(self):
-        """ The gameplay, turns the game and tracks for letter or command. """
+# ***************************** The game logic ***************************************************
 
-        self.visualisation.welcoming(self.username, self.hil_points)
-        self.visualisation(self.the_word).printing_empty_word()
+    def check_letters(self, letter, guessed_right):
+        """ The core of gamelogic, checks for accurate letter and manages win and lost result. """
 
-        while True:
-            if self.trigger:
-                break
+        self.asked_letters.append(letter)
+        for i in range(len(self.the_word)):
+            if self.the_word[i] == letter or self.the_word[i] == letter.lower() \
+                    or self.the_word[i] == letter.upper():
+                self.user_word[i] = self.the_word[i]
+                guessed_right += 1
 
-            letter = UserInput.asking_letter(self.game_points)
-            guessed_right = 0
-
-            letter_check = HangmanOne.analysing_letter(letter)
-            is_command = letter_check[0]
-            command = letter_check[1]
-            if is_command:
-                Commands(self, command).manage_comms()
-            else:
-                result = HangmanOne.check_letters(letter, guessed_right)
-                self.trigger = result[0]
-                self.hil_points = result[1]
-                if self.trigger:
-                    break
-
-
-        change_var = UserInput.changing_state()
-        if change_var[0]:
-            # Exit of game
-            self.saving_data()
-            Database.exclude_word_save(["blank"])
-            self.visualisation.leaving_game(self.hil_points)
-
+        if guessed_right != 0:
+            self.triggers_list.append(self.visualisation.print_in_game(self))
+            if self.letter_mark not in self.user_word:
+                self.end_trigger = True
+                self.hil_points += 1
+                self.triggers_list.append(self.visualisation.print_win_result(self))
         else:
-            # Make changes to the game
-            self.saving_data()
-            change_command = int(change_var[1])
-            changes = UserInput.change_logic(change_command, self.difficulty,
-                                                      self.category)
-            self.difficulty = changes[0]
-            self.category = changes[1]
-            player = HangmanApp(self.username, self.difficulty, self.category)
-            player.gaming()
+            self.fail_count += 1
+            self.game_points -= 1
+            if self.game_points < 0:
+                self.game_points = 0
+            self.triggers_list.append(self.visualisation.print_hangman(self))
 
-    def saving_data(self):
+            if self.fail_count == len(self.the_word):
+                self.triggers_list.append(self.visualisation.print_lost_result(self))
+                self.end_trigger = True
+
+        return self
+
+# ********************************* Saving data **************************************************
+
+    def save_data(self):
         """ Save user's score to the database. """
 
         self.usernames[self.username] = self.hil_points
         Database.users_save(self.usernames)
 
-class Commands(object):
-    '''
-    Commands through the game for exit, hints, whole word suggestion, etc..
-        1. Hint,
-        2. Quit game/Change category/Change diff,
-        3. Guess whole word,
-        4. Show/hide guessed letters,
-        5. Exchange HIL points to 1 additional try
-    '''
+# *********************************** Special commands sector *************************************
 
-    def __init__(self, player, command):
-
-        self.player = player.__dict__
-        self.command = int(command)
-        self.the_word = self.player["the_word"]
-        self.user_word = self.player["user_word"]
-        self.username = self.player["username"]
-        self.visualisation = ScreenPrint
-
-    def giving_hint(self):
+    def give_hint(self):
         """ Checks the possibility for hint letter and give it. """
 
-        if self.player["game_points"] - 2 >= 0:
-            self.player["game_points"] -= 2
-            ind = self.user_word.index("_")
+        if self.game_points - 2 >= 0:
+            self.game_points -= 2
+            ind = self.user_word.index(self.letter_mark)
             self.user_word[ind] = self.the_word[ind]
-            self.visualisation(self.user_word).printing_in_game()
+            self.triggers_list.append(self.visualisation.print_in_game(self))
+            # self.visualisation.printing_in_game(self)
         else:
-            print("You haven't enough points for hint !")
+            self.triggers_list.append(self.visualisation.print_no_hint(self))
 
     def stop_game(self):
         """ Stopping game. """
 
-        self.player["trigger"] = True
-        self.visualisation(self.username).leaving_game(self.player["hil_points"])
+        self.end_trigger = True
+        self.triggers_list.append(self.visualisation.leave_game(self))
 
-    def asking_whole_word(self):
+    def ask_whole_word(self):
         """ User tries to ask the whole word. """
 
-        whole_word = input("Please, enter the whole word you think it is: ")
+        whole_word = self.visualisation.print_ask_whole_word(self)
         if whole_word == self.the_word or whole_word == self.the_word.lower():
-            self.player["trigger"] = True
-            self.player["hil_points"] += 1
-            self.visualisation(self.username).printing_win_result(self.player["hil_points"],
-                                                                  self.player["game_points"])
+            self.end_trigger = True
+            self.hil_points += 1
+            self.triggers_list.append(self.visualisation.print_win_result(self))
+
         else:
-            self.player["fail_count"] += 1
-            self.visualisation(self.player["fail_count"]).printing_hangman()
+            self.fail_count += 1
+            self.triggers_list.append(self.visualisation.print_hangman(self))
 
-    def printing_asked_letters(self):
+    def print_asked_letters(self):
         """ Represents all asked letters in this game to that moment. """
-
-        self.visualisation(self.player["guessed_letters"]).presenting_asked_letters()
+        self.triggers_list.append(self.visualisation.present_asked_letters(self))
 
     def ask_additional_try(self):
         """ A possibility for one additional try after exchanging 10 HIL points. """
 
-        if self.player["hil_points"] - 10 >= 0 and self.player["fail_count"] >= 1:
-            self.player["fail_count"] -= 1
-            self.player["hil_points"] -= 10
-            print(f"Now you have one more try and {self.player['hil_points']} "
-                  f"HIL points remaining !")
-        else:
-            print("You don't have enough HIL points !")
+        if self.hil_points - 10 >= 0 and self.fail_count >= 1:
+            self.fail_count -= 1
+            self.hil_points -= 10
+            self.additional_try = True
+            self.triggers_list.append(self.visualisation.print_additional_try(self))
 
-    def manage_comms(self):
+        else:
+            self.additional_try = False
+            self.triggers_list.append(self.visualisation.print_additional_try(self))
+
+    def manage_comms(self, command):
         """ Method for handling commands:
             1. Hint
             2. Stop game
@@ -155,16 +177,62 @@ class Commands(object):
             5. Additional try
         """
 
-        ops = {1: self.giving_hint,
+        ops = {1: self.give_hint,
                2: self.stop_game,
-               3: self.asking_whole_word,
-               4: self.printing_asked_letters,
+               3: self.ask_whole_word,
+               4: self.print_asked_letters,
                5: self.ask_additional_try
                }
 
-        func_name = ops[self.command].__name__
+        func_name = ops[command].__name__
         func_obj = getattr(self, func_name)
         func_obj()
 
+# ********************************* The game lifecycle ****************************************************
 
-run()
+    def game_cycle(self):
+        """ The gameplay, turns the game and tracks for letter or command. """
+
+        self.visualisation.welcoming(self)
+        self.visualisation.print_empty_word(self)
+
+        while True:
+            if self.end_trigger:
+                break
+
+            letter_check = self.user_input.asking_letter(self)
+            guessed_right = 0
+
+            is_command = letter_check[0]
+            letter = letter_check[1]
+            if is_command:
+                self.manage_comms(letter)
+            else:
+                self.check_letters(letter, guessed_right)
+                if self.end_trigger:
+                    break
+
+            for print_action in self.triggers_list:
+                print_action
+
+        change_var = UserInput.changing_state()
+        if change_var[0]:
+            # Exit of game
+            self.save_data()
+            Database.exclude_word_save(["blank"])
+            self.end_trigger = True
+
+        else:
+            # Make changes to the game
+            self.save_data()
+            change_command = int(change_var[1])
+            changes = self.user_input.change_logic(self.difficulty, self.category,
+                                                   change_command)
+            self.difficulty = changes[0]
+            self.category = changes[1]
+            player = HangmanApp(self.username, self.difficulty, self.category)
+            player.game_cycle()
+
+# **************************************************************************************
+
+run_hangman()

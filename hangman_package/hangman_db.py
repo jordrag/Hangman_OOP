@@ -5,10 +5,6 @@ import json
 class Database(object):
     """ Working with database files on entry and exit of the game. """
 
-    # users = {"Ace": 5, "Base": 10, "Case": 15}
-    # with open("hangman_package/usernames.json", "w") as write_users:
-    #     json.dump(users, write_users)
-
     with open("hangman_package/usernames.json", "r") as read_users:
         usernames_list = json.load(read_users)
 

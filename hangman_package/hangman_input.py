@@ -4,6 +4,7 @@ from six import with_metaclass
 from hangman_package.hangman_db import *
 
 class UserInput(object):
+
     """ The initial interface to take data from user and start the game:
         username -> the name of the player
         difficulty -> separated in 3 levels depending the word length,
@@ -13,6 +14,7 @@ class UserInput(object):
         category -> starting with 3 categories (cars, animals, cities)
         but could be extended during the time
     """
+
     @staticmethod
     def entering_game():
         """ A short brief and taking user's data. """
@@ -30,23 +32,23 @@ class UserInput(object):
         return (username, difficulty, category)
 
     @staticmethod
-    def asking_letter(game_points):
+    def asking_letter(player):
         """ Represent current game points and ask for a letter. """
 
-        print(f"Game points: {game_points}")
+        print(f"Game points: {player.game_points}")
         letter = input("Ask a letter from the word: ")
-        return letter
 
-    @staticmethod
-    def input_command(letter):
-        """ Take a special command from user. """
+        is_command = False
+        # command = None
 
-        command = int(input("Choose command (1. Hint, "
-                            "2. Quit game/Change category/Change diff, "
-                            "3. Guess whole word, 4. Show/hide guessed letters, "
-                            "5. Exchange HIL points to 1 additional try --> "))
+        if letter == player.commands_symbol:
+            letter = int(input("Choose command (1. Hint, "
+                                "2. Quit game/Change category/Change diff, "
+                                "3. Guess whole word, 4. Show/hide guessed letters, "
+                                "5. Exchange HIL points to 1 additional try --> "))
+            is_command = True
 
-        return (command)
+        return (is_command, letter)
 
     @staticmethod
     def changing_state():
@@ -66,10 +68,10 @@ class UserInput(object):
                 print("Invalid input or empty category for this level, pls make another choice !")
 
     @staticmethod
-    def change_logic(comm, level, categ):
+    def change_logic(diff, categ, comm):
         """ Choose how to change parameters. """
 
-        difficulty = level
+        difficulty = diff
         category = categ
 
         if comm == 1:
@@ -79,7 +81,7 @@ class UserInput(object):
         elif comm == 3:
             category = str(input("Choose category of words (animals, cars, cities): "))
 
-        return (difficulty, category)
+        return difficulty, category
 
 class DatabaseInput(object):
     username_list = Database.usernames_list
