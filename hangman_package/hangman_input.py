@@ -21,25 +21,24 @@ class UserInput(object):
 
         print("Hello, let's play *** Hangman *** !")
         print()
+        while True:
+            username = str(input("Enter username: "))
+            try:
+                difficulty = str(input("Choose difficulty level (easy, medium, hard): "))
+                category = str(input("Choose category of words (animals, cars, cities): "))
+                return (username, difficulty, category)
+            except Exception:
+                print("Please enter valid parameters !")
 
-        # while True:
-            # try:
-        username = str(input("Enter username: "))
-        difficulty = str(input("Choose difficulty level (easy, medium, hard): "))
-        category = str(input("Choose category of words (animals, cars, cities): "))
-            # except Exception:
-            #     print("Please enter valid parameters !")
-        return (username, difficulty, category)
 
     @staticmethod
     def asking_letter(player):
-        """ Represent current game points and ask for a letter. """
+        """ Represents current game points and asks for a letter. """
 
         print(f"Game points: {player.game_points}")
         letter = input("Ask a letter from the word: ")
 
         is_command = False
-        # command = None
 
         if letter == player.commands_symbol:
             letter = int(input("Choose command (1. Hint, "

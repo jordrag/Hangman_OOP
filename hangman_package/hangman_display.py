@@ -131,8 +131,8 @@ class ScreenPrint(AbcPrint):
 
     @staticmethod
     def print_ask_whole_word(self):
-        self.whole_word = input("Please, enter the whole word you think it is: ")
-        # return whole_word
+        whole_word = input("Please, enter the whole word you think it is: ")
+        return whole_word
 
     @staticmethod
     def print_additional_try(self):
@@ -140,7 +140,8 @@ class ScreenPrint(AbcPrint):
             print(f"Now you have one more try and {self.hil_points} "
                   f"HIL points remaining !")
         else:
-            print("You don't have enough HIL points !")
+            print("You can't take addittional try before at least one missed letter or "
+                  "you don't have enough HIL points !")
 
     @staticmethod
     def leave_game(self):
@@ -186,8 +187,17 @@ class PrinterLogic(object):
                 self.display_list["print_no_hint"] = False
 
             elif self.display_list["print_ask_whole_word"]:
-                self.visualisation.print_ask_whole_word(self)
                 self.display_list["print_ask_whole_word"] = False
+                self.whole_word = self.visualisation.print_ask_whole_word(self)
+                if self.whole_word == self.the_word or self.whole_word == self.the_word.lower():
+                    self.end_trigger = True
+                    self.hil_points += 1
+                    self.whole_word = None
+                    self.display_list["print_win_result"] = True
+
+                else:
+                    self.fail_count += 1
+                    self.display_list["print_hangman"] = True
 
             elif self.display_list["print_additional_try"]:
                 self.visualisation.print_additional_try(self)

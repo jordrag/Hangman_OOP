@@ -147,16 +147,7 @@ class HangmanApp(object):
     def ask_whole_word(self):
         """ User tries to ask the whole word. """
 
-        self.display_list["ask_whole_word"] = True
-        if self.whole_word == self.the_word or self.whole_word == self.the_word.lower():
-            self.end_trigger = True
-            self.hil_points += 1
-            self.whole_word = None
-            self.display_list["print_win_result"] = True
-
-        else:
-            self.fail_count += 1
-            self.display_list["print_hangman"] = True
+        self.display_list["print_ask_whole_word"] = True
 
     def print_asked_letters(self):
         """ Represents all asked letters in this game to that moment. """
@@ -189,11 +180,12 @@ class HangmanApp(object):
                4: self.print_asked_letters,
                5: self.ask_additional_try
                }
-
-        func_name = ops[command].__name__
-        func_obj = getattr(self, func_name)
-        func_obj()
-
+        try:
+            func_name = ops[command].__name__
+            func_obj = getattr(self, func_name)
+            func_obj()
+        except Exception:
+            print("Please choose a valid command number (1-5) !")
 # ********************************* The game lifecycle ****************************************************
 
     def game_cycle(self):
