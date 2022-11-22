@@ -25,9 +25,9 @@ class AbcPrint(with_metaclass(ABCMeta)):
     def welcoming(self):
         pass
 
-    @abstractmethod
-    def print_empty_word(self):
-        pass
+    # @abstractmethod
+    # def print_empty_word(self):
+    #     pass
 
     @abstractmethod
     def print_in_game(self):
@@ -74,15 +74,15 @@ class ScreenPrint(AbcPrint):
         # self.display_list = display_list
         pass
 
-
+    @staticmethod
     def welcoming(self):
         """ Presenting current HIL points saved to the user in database. """
 
         print()
         print(f"Hello {self.username}, you have {self.hil_points} HIL points, let's play !")
 
-    def print_empty_word(self):
-        """ Prints the chosen word with dashes for start of the game. """
+    # def print_empty_word(self):
+    #     """ Prints the chosen word with dashes for start of the game. """
 
         print()
         for i in self.user_word:
@@ -131,8 +131,8 @@ class ScreenPrint(AbcPrint):
 
     @staticmethod
     def print_ask_whole_word(self):
-        whole_word = input("Please, enter the whole word you think it is: ")
-        return whole_word
+        self.whole_word = input("Please, enter the whole word you think it is: ")
+        # return whole_word
 
     @staticmethod
     def print_additional_try(self):
@@ -149,50 +149,52 @@ class ScreenPrint(AbcPrint):
         print("OK, bye ! Leaving...")
         print(f"Your total saved HIL points: {self.hil_points}")
 
-visualisation = ScreenPrint()
+# *********************************************************************************************
 
 class PrinterLogic(object):
-    def __init__(self):
-        pass
 
     def printer_cycle(self):
 
         while True:
 
+            if self.display_list["welcoming"]:
+                self.visualisation.welcoming(self)
+                self.display_list["welcoming"] = False
+
             if self.display_list["print_in_game"]:
-                visualisation.print_in_game(self)
+                self.visualisation.print_in_game(self)
                 self.display_list["print_in_game"] = False
 
             elif self.display_list["print_hangman"]:
-                visualisation.print_hangman(self)
+                self.visualisation.print_hangman(self)
                 self.display_list["print_hangman"] = False
 
             elif self.display_list["print_asked_letters"]:
-                visualisation.present_asked_letters(self)
+                self.visualisation.present_asked_letters(self)
                 self.display_list["print_asked_letters"] = False
 
             elif self.display_list["print_win_result"]:
-                visualisation.print_win_result(self)
+                self.visualisation.print_win_result(self)
                 self.display_list["print_win_result"] = False
 
             elif self.display_list["print_lost_result"]:
-                visualisation.print_lost_result(self)
+                self.visualisation.print_lost_result(self)
                 self.display_list["print_lost_result"] = False
 
             elif self.display_list["print_no_hint"]:
-                visualisation.print_no_hint(self)
+                self.visualisation.print_no_hint(self)
                 self.display_list["print_no_hint"] = False
 
             elif self.display_list["print_ask_whole_word"]:
-                visualisation.print_ask_whole_word(self)
+                self.visualisation.print_ask_whole_word(self)
                 self.display_list["print_ask_whole_word"] = False
 
             elif self.display_list["print_additional_try"]:
-                visualisation.print_additional_try(self)
+                self.visualisation.print_additional_try(self)
                 self.display_list["print_additional_try"] = False
 
             elif self.display_list["print_leave_game"]:
-                visualisation.leave_game(self)
+                self.visualisation.leave_game(self)
                 self.display_list["print_leave_game"] = False
 
             else:

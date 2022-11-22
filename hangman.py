@@ -60,9 +60,10 @@ class HangmanApp(object):
     data_input = DatabaseInput()
 
     def __init__(self, name, diff, cat):
+        self.visualisation = ScreenPrint
+        self.printer = PrinterLogic
         self.letter_mark = "_"
         self.commands_symbol = "@"
-        self.visualisation = ScreenPrint
         self.usernames = self.data_input.username_list
         self.username = name
         self.difficulty = diff
@@ -74,7 +75,7 @@ class HangmanApp(object):
         self.user_word = self.starting_data["user_word"]
         self.game_points = len(self.the_word)
         self.asked_letters = []
-        self.display_list = {"print_in_game": False, "print_hangman": False,
+        self.display_list = {"welcoming": True, "print_in_game": False, "print_hangman": False,
                              "print_asked_letters": False, "print_win_result": False,
                              "print_lost_result": False, "print_no_hint": False,
                              "print_ask_whole_word": False, "print_additional_try": False,
@@ -82,6 +83,7 @@ class HangmanApp(object):
         self.fail_count = 0
         self.end_trigger = False
         self.additional_try = False
+        self.whole_word = None
 
 
 # ***************************** The game logic ***************************************************
@@ -132,7 +134,7 @@ class HangmanApp(object):
             self.game_points -= 2
             ind = self.user_word.index(self.letter_mark)
             self.user_word[ind] = self.the_word[ind]
-            self.display_list["print_in_game"] = True
+            self.check_letters(self.the_word[ind], 0)
         else:
             self.display_list["print_no_hint"] = True
 
@@ -145,10 +147,11 @@ class HangmanApp(object):
     def ask_whole_word(self):
         """ User tries to ask the whole word. """
 
-        whole_word = self.display_list["ask_whole_word"] = True
-        if whole_word == self.the_word or whole_word == self.the_word.lower():
+        self.display_list["ask_whole_word"] = True
+        if self.whole_word == self.the_word or self.whole_word == self.the_word.lower():
             self.end_trigger = True
             self.hil_points += 1
+            self.whole_word = None
             self.display_list["print_win_result"] = True
 
         else:
@@ -196,8 +199,7 @@ class HangmanApp(object):
     def game_cycle(self):
         """ The gameplay, turns the game and tracks for letter or command. """
 
-        self.visualisation.welcoming(self)
-        self.visualisation.print_empty_word(self)
+        self.printer.printer_cycle(self)
 
         while True:
             if self.end_trigger:
@@ -216,7 +218,7 @@ class HangmanApp(object):
                     PrinterLogic.printer_cycle(self)
                     break
 
-            PrinterLogic.printer_cycle(self)
+            self.printer.printer_cycle(self)
 
 # ********************** State change ****************************************
 
