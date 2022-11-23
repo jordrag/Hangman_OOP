@@ -150,6 +150,7 @@ class HangmanApp(object):
                 self.hil_points += 1
                 self.display_list["print_win_result"] = True
         else:
+            self.display_list["print_in_game"] = True
             self.fail_count += 1
             self.game_points -= 1
             if self.game_points < 0:

@@ -33,6 +33,7 @@ class UserInput(object):
     def asking_letter(player):
         """ Represents current game points and asks for a letter. """
 
+        print()
         print(f"Game points: {player.game_points}")
         letter = input("Ask a letter from the word: ")
 

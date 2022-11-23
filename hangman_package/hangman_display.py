@@ -84,7 +84,6 @@ class ScreenPrint(AbcPrint):
     # def print_empty_word(self):
     #     """ Prints the chosen word with dashes for start of the game. """
 
-        print()
         for i in self.user_word:
             print(i, end=" ")
         print()
