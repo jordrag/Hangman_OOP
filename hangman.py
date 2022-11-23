@@ -115,7 +115,7 @@ class HangmanApp(object):
         self.category = cat
         self.game_list = self.data_input.defining_game_list(diff, cat)
         self.hil_points = self.data_input.extracting_hil_points(name)
-        self.starting_data = self.data_input.setting_start_data(self.game_list)
+        self.starting_data = self.data_input.setting_start_data(self.game_list, self.letter_mark)
         self.the_word = self.starting_data["the_word"]
         self.user_word = self.starting_data["user_word"]
         self.game_points = len(self.the_word)

@@ -118,7 +118,7 @@ class DatabaseInput(object):
         return Database.usernames_list[username]
 
     @staticmethod
-    def setting_start_data(game_list):
+    def setting_start_data(game_list, letter_mark):
         """ Complete set of starting data for current game according defined
       conditions. """
 
@@ -129,7 +129,7 @@ class DatabaseInput(object):
         exclude_list.append(the_word)
         Database.exclude_word_save(exclude_list)
         for lett in the_word:
-            empty_list.append("_")
+            empty_list.append(letter_mark)
         return {"the_word": the_word, "user_word": empty_list, "words_list": game_list}
 
 
