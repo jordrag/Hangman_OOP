@@ -7,15 +7,34 @@ from hangman_package.hangman_input import *
 def run_hangman():
     """ For starting the game """
 
-    input_data = UserInput.entering_game()
-    username = input_data[0]
-    level = input_data[1]
-    category = input_data[2]
-    player = HangmanApp(username, level, category)
-    player.game_cycle()
-
+    while True:
+        try:
+            input_data = UserInput.entering_game()
+            username = input_data[0]
+            level = input_data[1]
+            category = input_data[2]
+            player = HangmanApp(username, level, category)
+            player.game_cycle()
+            break
+        except Exception:
+            print("Please enter valid parameters !")
 
 class AbcHangman(with_metaclass(ABCMeta)):
+    """
+    Main methods used in the class are:
+    check_letters -> to check for accurate letter and manages win and lost result
+    save_data -> to save user's score to the database
+    give_hint -> to check the possibility for hint letter and give it
+    stop_game -> a special command to stop the game
+    ask_whole_word -> a special command to try asking the whole word
+    print_aksed_letters -> a special command to represent all asked letters in the game to
+    the moment of ask
+    ask_additional_try -> a special command to change HIL points for one additional try
+    manage_comms -> method for managing all special commands
+    game_cycle -> the gameplay, turns the game and tracks for letter or command
+    """
+
+
     @abstractmethod
     def check_letters(self):
         pass
@@ -54,7 +73,33 @@ class AbcHangman(with_metaclass(ABCMeta)):
 
 
 class HangmanApp(object):
-    """ The game manager. """
+    """
+        The main logic of the game responsible for the gameplay:
+
+        In this class main used variables are:
+
+        self.usernames -> all usernames listed in the database
+        self.username -> the current player name
+        self.difficulty -> the chosen level to play
+        self.category -> the chosen category to play
+        self.game_list -> setting a list of words matching the player conditions
+        self.hil_points -> player's hil_points taken from the database
+        self.starting_data -> complete set of starting data for current game according defined
+        conditions
+        self.the_word -> the concrete word this game
+        self.user_word -> first and empty word marked with dashes equivalent to the_word
+        self.end_trigger -> a trigger for switching off the game
+        self.asked_letters -> list of asked letters during the game
+        self.fail_count -> fail counter for each word
+        self.game_points -> game points for each word, it begins with maximum number (the word length)
+        self.visualisation -> variable where could be change printing interface
+        self.printer -> reffers to the printer logic managing the print proccess
+        self.letter_mark -> a symbol chosen to represent an empty position in game word
+        self.commands_symbol -> a symbol chosen for special commands menu enter
+        self.display_list -> a dictionary of triggers to rule the work of printer logic
+        self.additional_try -> trigger for analysing an ask for additional try
+        self.whole_word -> a variable for whole word suggestion
+    """
 
     user_input = UserInput()
     data_input = DatabaseInput()
@@ -159,6 +204,7 @@ class HangmanApp(object):
         if self.hil_points - 10 >= 0 and self.fail_count >= 1:
             self.fail_count -= 1
             self.hil_points -= 10
+            self.game_points += 1
             self.additional_try = True
         else:
             self.additional_try = False

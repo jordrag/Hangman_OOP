@@ -21,14 +21,12 @@ class UserInput(object):
 
         print("Hello, let's play *** Hangman *** !")
         print()
-        while True:
-            username = str(input("Enter username: "))
-            try:
-                difficulty = str(input("Choose difficulty level (easy, medium, hard): "))
-                category = str(input("Choose category of words (animals, cars, cities): "))
-                return (username, difficulty, category)
-            except Exception:
-                print("Please enter valid parameters !")
+
+        username = str(input("Enter username: "))
+        difficulty = str(input("Choose difficulty level (easy, medium, hard): "))
+        category = str(input("Choose category of words (animals, cars, cities): "))
+        return (username, difficulty, category)
+
 
 
     @staticmethod
@@ -82,11 +80,21 @@ class UserInput(object):
 
         return difficulty, category
 
+# ***********************************************************************************************
+
 class DatabaseInput(object):
+    """ This class takes all data from database:
+        - existing HIL points of user
+        - list of words matching player's conditions
+        Packs and sends them to the main module.
+    """
+
     username_list = Database.usernames_list
     @staticmethod
     def defining_game_list(difficulty, category):
-        """ Setting a list of words matching the player conditions. """
+        """ Setting a list of words matching the player conditions.
+            exclude_list -> responsible to not repeat any word in the game
+        """
 
         temp_list = []
         exclude_list = Database.ex_word_read()

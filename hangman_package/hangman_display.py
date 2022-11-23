@@ -65,7 +65,7 @@ class AbcPrint(with_metaclass(ABCMeta)):
     def leave_game(self):
         pass
 
-# **********************************************************************************************
+# ********************************** ASCII print class ********************************************
 
 class ScreenPrint(AbcPrint):
     """ Printing on the screen in ASCII format only. """
@@ -150,9 +150,13 @@ class ScreenPrint(AbcPrint):
         print("OK, bye ! Leaving...")
         print(f"Your total saved HIL points: {self.hil_points}")
 
-# *********************************************************************************************
+# ********************************** Independent printer logic ***********************************
 
 class PrinterLogic(object):
+    """ Logic that controls print proccesses independent of the main game body. This class could
+    manage the game data flow  no matter what is the exit format (ASCII, graphic, etc..).
+    self.visualisation is the attribute of the object that manages the print format
+    """
 
     def printer_cycle(self):
 
