@@ -50,7 +50,7 @@ They depend on the length of the current word and the rules for them are:**
     <br>
     <img src="images/Manual_hangman_8.jpg">
    
-    The circled stars are your wrong guessed letters from the word. Their maximum number is the length of the word and are increased with each wrong answer in oposition of the Game points.
+    The circled stars are your wrong guessed letters from the word. Their maximum number is the length of the word and increased with each wrong answer in opposition of the Game points.
     * **The second option is multiple choice: (2) to quit the game, change category or level**
     <br>
     <img src="images/Manual_hangman_9.jpg">
