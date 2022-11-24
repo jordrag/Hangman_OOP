@@ -194,7 +194,7 @@ class PrinterLogic(object):
 
             elif self.display_list["print_ask_whole_word"]:
                 self.display_list["print_ask_whole_word"] = False
-                self.whole_word = self.visualisation.print_ask_whole_word(self)
+                self.whole_word = self.visualisation.print_ask_whole_word()
                 if self.whole_word == self.the_word or self.whole_word == self.the_word.lower():
                     self.end_trigger = True
                     self.hil_points += 1
