@@ -75,79 +75,79 @@ class ScreenPrint(AbcPrint):
         pass
 
     @staticmethod
-    def welcoming(self):
+    def welcoming(player):
         """ Presenting current HIL points saved to the user in database. """
 
         print()
-        print(f"Hello {self.username}, you have {self.hil_points} HIL points, let's play !")
+        print(f"Hello {player.username}, you have {player.hil_points} HIL points, let's play !")
 
     # def print_empty_word(self):
     #     """ Prints the chosen word with dashes for start of the game. """
 
-        for i in self.user_word:
+        for i in player.user_word:
             print(i, end=" ")
         print()
 
     @staticmethod
-    def print_in_game(self):
+    def print_in_game(player):
         """ Regular prints the word asking progress. """
 
-        print(" ".join(self.user_word))
+        print(" ".join(player.user_word))
 
     @staticmethod
-    def print_hangman(self):
+    def print_hangman(player):
         """ Prints the hanging progress. """
 
         print("It's wrong ! Hanging in progress...")
-        print("*" * self.fail_count)
+        print("*" * player.fail_count)
 
     @staticmethod
-    def present_asked_letters(self):
+    def present_asked_letters(player):
         """ Presents a list of asked letters. """
 
-        print(self.asked_letters)
+        print(player.asked_letters)
 
     @staticmethod
-    def print_win_result(self):
+    def print_win_result(player):
         """ Prints exit data when the player wins the game. """
 
-        print(f"{self.username}, you won !")
-        print(f"Total game points left: {self.game_points}")
-        print(f"Total HIL points: {self.hil_points}")
+        print(f"{player.username}, you won !")
+        print(f"Total game points left: {player.game_points}")
+        print(f"Total HIL points: {player.hil_points}")
 
     @staticmethod
-    def print_lost_result(self):
+    def print_lost_result(player):
         """ Prints exit data when the player looses the game. """
 
-        print(f"Game over! {self.username}, you've lost !")
-        print(f"The word is -> {self.the_word}")
-        print(f"Total earned game points: {self.game_points}")
-        print(f"Total HIL points: {self.hil_points}")
+        print(f"Game over! {player.username}, you've lost !")
+        print(f"The word is -> {player.the_word}")
+        print(f"Total earned game points: {player.game_points}")
+        print(f"Total HIL points: {player.hil_points}")
 
     @staticmethod
-    def print_no_hint(self):
+    def print_no_hint():
         print("You haven't enough points for hint !")
 
     @staticmethod
-    def print_ask_whole_word(self):
+    def print_ask_whole_word():
         whole_word = input("Please, enter the whole word you think it is: ")
         return whole_word
 
     @staticmethod
-    def print_additional_try(self):
-        if self.additional_try:
-            print(f"Now you have one more try and {self.hil_points} "
+    def print_additional_try(player):
+        if player.additional_try:
+            print(f"Now you have one more try and {player.hil_points} "
                   f"HIL points remaining !")
         else:
             print("You can't take addittional try before at least one missed letter or "
                   "you don't have enough HIL points !")
 
     @staticmethod
-    def leave_game(self):
+    def leave_game(player):
         """ Final print. """
 
         print("OK, bye ! Leaving...")
-        print(f"Your total saved HIL points: {self.hil_points}")
+        print(f"Your total saved HIL points: {player.hil_points}")
 
 # ********************************** Independent printer logic ***********************************
 
@@ -158,6 +158,9 @@ class PrinterLogic(object):
     """
 
     def printer_cycle(self):
+        """ A cycle to check triggers status from the main logic of the game and to manage
+        what and how to print.
+        """
 
         while True:
 
@@ -165,7 +168,7 @@ class PrinterLogic(object):
                 self.visualisation.welcoming(self)
                 self.display_list["welcoming"] = False
 
-            if self.display_list["print_in_game"]:
+            elif self.display_list["print_in_game"]:
                 self.visualisation.print_in_game(self)
                 self.display_list["print_in_game"] = False
 

@@ -1,6 +1,8 @@
-# **************** The database for users, categories and levels in the game ***********************
-import json
+# coding=utf-8
 
+""" The database for users, categories and levels in the game """
+
+import json
 
 class Database(object):
     """ Working with database files on entry and exit of the game. """
@@ -13,7 +15,6 @@ class Database(object):
 
     with open("hangman_package/categories.json", "r") as read_cats:
         categories = json.load(read_cats)
-
     @classmethod
     def users_save(cls, users):
         """ Save user data """

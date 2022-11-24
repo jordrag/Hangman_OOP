@@ -1,7 +1,7 @@
+""" An entry module preparing the input info for the game """
+
 import random
-from abc import ABCMeta, abstractmethod
-from six import with_metaclass
-from hangman_package.hangman_db import *
+from hangman_package.hangman_db import Database
 
 class UserInput(object):
 
@@ -59,7 +59,7 @@ class UserInput(object):
                 if change == "y":
                     change_trigger = True
                     return (change_trigger, None)
-                elif change == "n":
+                if change == "n":
                     comm = int(input("1. Continue 2. Change level, 3. Change category: "))
                     return (change_trigger, comm)
             except Exception:
@@ -128,7 +128,7 @@ class DatabaseInput(object):
         the_word = game_list.pop(rnd_number)
         exclude_list.append(the_word)
         Database.exclude_word_save(exclude_list)
-        for lett in the_word:
+        for _ in the_word:
             empty_list.append(letter_mark)
         return {"the_word": the_word, "user_word": empty_list, "words_list": game_list}
 
