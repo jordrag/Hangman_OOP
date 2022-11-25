@@ -233,7 +233,8 @@ class HangmanApp(object):
             func_obj()
         except Exception:
             print("Please choose a valid command number (1-5) !")
-# ********************************* The game lifecycle ****************************************************
+
+# ********************************* The game lifecycle *******************************************
 
     def game_cycle(self):
         """ The gameplay, turns the game and tracks for letter or command. """
